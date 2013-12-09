@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1024" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Dart media gallery + Wii remote</title>
+    
+    <meta name="description" content="Prototype of Web media center created with a new language Dart. You can view pictures and video + remote control using the Nintendo Wii remote. Used technologies: Dart server, Dart client, WebSocket, Objective C, Bluetooth and etc." />
+    <meta name="author" content="Dart Vaider team" />
+
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic" rel="stylesheet" />
+
+    <link href="css/impress-demo.css" rel="stylesheet" />
+    
+</head>
+<body class="impress-not-supported">
+<div class="fallback-message">
+    <p>Your browser <b>doesn't support the features required</b> by this presentation, so you are presented with a simplified version of this presentation.</p>
+    <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+</div>
+
+<div id="impress">
+
+    <div id="start" class="step slide" data-x="-1000" data-y="-1500">
+		<img src="img/dart-logo.png" />
+        <q>Once upon a time<br/> at Dart hackathon...</q>
+    </div>
+
+    <div class="step slide" data-x="0" data-y="-1500">
+        <q>We had an <b>idea!</b> To create a web media center with remote control by <strong>Nintendo WiiRemote!</strong></q>
+		<img src="img/wii.jpeg" />
+    </div>
+
+    <div class="step slide" data-x="1000" data-y="-1500">
+        <q>And after some brainstorming we developed...</q>
+    </div>
+
+    <div class="step slide" data-x="0" data-y="0" data-scale="3">
+        <p>... the project</p>
+        <img src="img/struct.jpg" />
+		
+    </div>
+    
+
+	<div class="step slide" data-x="-1300" data-y="-500" data-z="200" data-rotate-x="0" data-rotate-y="0" data-scale="0.5">
+		<p>Nintendo WiiRemote connects to a computer via Bluetooth.</p>
+        <img src="img/wiiaccel.png" />
+		<p>We used data from the accelerometers for X and Z axis, and sent them across the WebSocket.</p>
+    </div>
+
+	<div class="step slide" data-x="-1300" data-y="100" data-z="200" data-rotate-x="0" data-rotate-y="0" data-scale="0.5">
+		<q>WebSocket server is built into the program, which was created in Objective-C for Mac OS X.</q>
+		<br/>
+		<p>It uses port 40001 and sends the data from the Wii accelerometers in the the form of text packages:</p>
+		<p>x_accel|y_accel|z_accel|resevred|reserved|button_mask</p>
+		<br/>
+		<a href="GDS_ForDartHackathon.dmg">Download this program for Mac OS X</a>
+     </div>
+    
+	<div class="step slide" data-x="400" data-y="200" data-z="200" data-rotate-x="0" data-rotate-y="0" data-scale="0.5">
+				<p>Dart <b>WiiGesture class</b> unpacks data from WebSocket and transforms them into high-level commands.</p>
+				<br/>
+				<pre>
+		class WiiGestures {
+			...
+			WiiGestures() {
+				ws = new WebSocket('ws://127.0.0.1:40001');
+				ws.on.open.add((evt) { ws.send("Hello"); });
+				ws.on.message.add((evt){
+					String a=evt.data;
+					var b=a.split('|');
+					this.updateBy(Math.parseInt(b[0]),Math.parseInt(b[1]),Math.parseInt(b[2]),Math.parseInt(b[5]));
+					ws.send("0");
+					});
+			...
+			}
+			void updateBy(int a,int b,int c,int d){
+				//smooth data from accelerometers
+				//interpret data and fire high-level commands
+				//more info in source code.
+			}
+		}
+			  </pre>
+     </div>
+
+	<div class="step slide" data-x="400" data-y="-600" data-z="200" data-rotate-x="0" data-rotate-y="0" data-scale="0.5">
+					<p>Gallery is using WiiGestures to get high-level commands.</p>
+					<br/>
+					<pre>
+						#import('WiiGestures.dart');
+						var Wii; 
+						void main() {
+						  Wii= new WiiGestures();
+						  Wii.onGesture=(a){
+						    switch(a){
+						      case "next":
+						        //show next image
+						        break;
+						      case "prev":
+						        //show previous image
+						        break;
+						      case "go":
+						        //zoomin current image
+						        break;
+						      case "back":
+						        //zoomout current image
+						        break;
+						    }
+						  };
+						}
+				  </pre>
+     </div>
+
+
+    <div id="overview0" class="step" data-x="0" data-y="0" data-scale="4"></div>
+
+    <div id="demo" class="step slide" data-x="3000" data-y="0" data-scale="3">
+        <p>Demo from hackathon</p><br/>
+
+        <iframe width="778" height="465" src="http://www.youtube.com/embed/c-sSIQLwYkc?rel=0&start=530&html5=1" frameborder="0" allowfullscreen></iframe>
+    	<p>Not in english, sory...</p>
+		
+	</div>
+
+    <div id="src" class="step slide" data-x="6000" data-y="0" data-scale="3">
+        <p>Sources from hackathon</p><br/>
+		<p>We had to cut part of the source code (the main menu and video gallery), leaving only the image gallery</p><br/>
+		<p>To run this you need:</p>
+		<ol class="rounded-list">
+			<li><a href="http://www.dartlang.org/docs/editor/#download" target="_blank">Dart editor</a></li>
+			<li><a href="DartGallery_fromHackathon.zip">Source code from hackathon</a></li>
+			<li><a href="GDS_ForDartHackathon.dmg">WiiRemote Controller utility for Mac OS X</a></li>
+			<li><a href="http://en.wikipedia.org/wiki/Wii_Remote" target="_blank">WiiRemote</a></li>	
+		</ol>
+	
+	</div>
+
+    <div class="step slide" data-x="3000" data-y="2500" data-scale="3">
+        <br/><p><strong>DartVaider</strong> team // <a href="http://lviv.gdg.org.ua/2012/05/15/darthack-lviv/" target="_blank">Dart hackathon at Lviv,Ukraine</a></p><br/>
+    	<img src="img/t.jpg" /><br/>
+		<a href="https://plus.google.com/114182430074405515342" target="_blank" style="margin-left:20px;">Vadim Markelov </a> 
+		<a href="https://plus.google.com/110790864966808015880" target="_blank">Roman Lytvyn </a> 
+		<a href="https://plus.google.com/116139335995910178752" target="_blank">Vova Miniof </a> 
+		
+		
+	</div>
+    <div id="overview" class="step" data-x="3000" data-y="1000" data-scale="10">
+    </div>
+
+</div>
+
+<div class="hint">
+    <p>Use a spacebar or arrow keys to navigate</p>
+</div>
+<script>
+if ("ontouchstart" in document.documentElement) { 
+    document.querySelector(".hint").innerHTML = "<p>Tap on the left or right to navigate</p>";
+}
+</script>
+<script src="js/impress.js"></script>
+<script>impress().init();</script>
+
+</body>
+</html>
